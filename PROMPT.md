@@ -140,6 +140,33 @@ This project was generated with the help of an AI model.
 
 > Keep 90 mm
 
+### Follow-up 22
+
+> Push
+
+### Follow-up 23
+
+> Write a nice introduction that explains what this device is, what its applications are and why I choose this name (cube shape, QRG Q-code for frequency). Add a mode "beacon", this mode transmits a callsign (default value 'N0CALL') and should be enabled in the code by changing the callsign to any other value. The mode allows the device to act as a beacon transmitter, sending the callsign in morse code (12 wpm) and then sends a carrier for 60 seconds before repeating the call and another carrier (loop). So also update the code.
+> The FSK470 and FSK850 should be changed to a 50 baud RTTY signal, sending 'RYRYRYRYRY' continuously. The FSK1K and FSK10K modes should iterate on 1 Hz.
+
+### Follow-up 24
+
+> The FSK470 is wrong. This should be FSK170, which has a 170 Hz spacing. Then there is FSK425, the same but now 425 Hz spacing. Forget the RTTY modulation I mentioned earlier, apply the 1Hz alternating instead.
+
+### Follow-up 25
+
+> Actually I don't really know what are useful FSK spacings, apart from the RTTY shifts of 170, 425 and 850. Any other suggestions for radio testing/measurement purposes?
+
+(Answered with suggestions; no change.)
+
+### Follow-up 26
+
+> Let's change the interface. You simply choose FSK with the MODE button. When holding the MODE button for a second, you can switch between 170, 425, 850 and VAR. When VAR is selected, the UP/DOWN buttons are used to change the shift. The initial shift is 1000 Hz. Holding the UP/DOWN keys increase/decrease the frequency fast, about 100Hz/second in 10 Hz steps. Hold MODE again for normal operation. The shift can be set in Hz, from 1 to 10000 Hz. Holding the DIGIT button will store the selected shift in the 'Preferences' memory of the ESP32, so it survives an power outage or reboot. When in FSK VAR mode, the spacing is displayed as well.
+
+### Follow-up 27
+
+> Can you generate an image that shows screenshots of all possible modes and settings, and arrows between them with instructions how to get to the next screen (or go back to the main "loop").
+
 ## Design decisions made by the AI
 
 - I2C bus shared by Si5351 (0x60) and OLED (SSD1306, 0x3C) on GPIO21 (SDA) / GPIO22 (SCL).
@@ -149,7 +176,7 @@ This project was generated with the help of an AI model.
   Steps that would leave this range are ignored.
 - Buttons 1 and 2 auto-repeat when held down.
 - Power-up defaults: 10.000.000 Hz, mode OFF, cursor on the first digit.
-- Button 4 cycles CW → CW-keyed → FSK470 → FSK850 → FSK1K → FSK10K → OFF → CW (FSK10K placed after FSK1K).
+- Button 4 cycles CW → CW-keyed → FSK → Beacon → OFF → CW.
 - CW-keyed repeats "-." (dash 300 ms, gap 100 ms, dot 100 ms, gap 100 ms), i.e. 12 WPM.
 - FSK modes start on the displayed frequency, then the shifted (higher) frequency.
 - Keying is done with the Si5351 output enable, so the oscillator keeps running.
@@ -162,4 +189,10 @@ This project was generated with the help of an AI model.
 - Case: buttons engraved ▲ ▼ D M (button 1..4).
 - Case: board dimensions are assumptions (ESP32 DevKit 55x28, GM009605 27.3x27.8, Si5351 40x30, button board 45x20) and must be checked.
 - Product render and inside view rendered with matplotlib (`case/qube_preview.py`).
+- All timed modes are step tables played from loop() with micros() timing (no drift; no delay() in loop).
+- One FSK mode, alternating at 1 Hz (500 ms on f, 500 ms on f + shift). Shift 170 / 425 / 850 / VAR (1–10000 Hz, start 1000). (RTTY was tried and removed again.)
+- Shift setting: hold MODE (1 s) in FSK to open; short MODE cycles the shifts; UP/DOWN change VAR by 1 Hz, held 10 Hz steps every 100 ms on multiples of 10; hold MODE to close. The FSK signal keeps running while setting.
+- DIGIT and MODE act on release (short) or after 1 s (long); hold DIGIT saves shift selection and VAR value in ESP32 Preferences (namespace "quberg"), also outside the shift setting. Holding MODE outside FSK does nothing.
+- Beacon: callsign in morse at 12 WPM (100 ms dot), word gap, 60 s carrier, word gap, repeat. Mode order CW, CW-keyed, FSK, Beacon, OFF; Beacon is skipped while CALLSIGN is "N0CALL".
+- Screen diagram (`docs/screens.png`): the firmware runs on the PC with stand-in hardware and the real Adafruit GFX 5x7 font, so the screenshots match the real display (`tools/screenflow/`).
 - Libraries: Etherkit Si5351, Adafruit SSD1306, Adafruit GFX.
