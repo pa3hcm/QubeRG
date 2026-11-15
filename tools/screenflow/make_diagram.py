@@ -55,9 +55,9 @@ def png_data_uri(path):
 
 
 CW, CH = 272, 144            # card size (screen 256 x 128 + bezel)
-COL = [40, 370, 700, 1030, 1360]
+COL = [40, 400, 760, 1120, 1480]
 R0, R1, R2, R3 = 80, 340, 640, 920
-W, H = 1720, 1160
+W, H = 1860, 1160
 
 
 def card(svg, imgdir, name, x, y, title, sub=None, dashed=False):
@@ -102,7 +102,7 @@ def build(imgdir, out_svg):
     arrow(svg, [(COL[0] + 70, R0 + CH + 4), (COL[0] + 70, R1 - 34)], "#888", "after 2 s", COL[0] + 82, R0 + CH + 52, "start")
 
     # ---- main loop
-    svg.append(f'<text x="{COL[1]}" y="{R1 - 75}" class="l" font-weight="bold">Main loop – press MODE for the next mode</text>')
+    svg.append(f'<text x="{COL[1]}" y="{R1 - 100}" class="l" font-weight="bold">Main loop – press MODE for the next mode</text>')
     card(svg, imgdir, "off", COL[0], R1, "OFF (power-up)", "no output")
     card(svg, imgdir, "cw", COL[1], R1, "CW", "continuous carrier")
     card(svg, imgdir, "cwkeyed", COL[2], R1, "CW-keyed", "-.-.-. at 12 WPM")

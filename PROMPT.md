@@ -167,6 +167,34 @@ This project was generated with the help of an AI model.
 
 > Can you generate an image that shows screenshots of all possible modes and settings, and arrows between them with instructions how to get to the next screen (or go back to the main "loop").
 
+### Follow-up 28
+
+> The button board is 38 x 16 mm, the top of each button is 8.0 mm above the board.
+
+### Follow-up 29
+
+> the centre-to-centre spacing of the buttons is 7.3 mm
+
+### Follow-up 30
+
+> The SI5351 board dimensions are 30.2 x 21.6 mm.
+
+### Follow-up 31
+
+> Can you make a view of how the SI5351 board is mounted on the top lid using the SMA thru-hole connector and a M-M adaptor?
+
+### Follow-up 32
+
+> On the new picture CLK1 is connected, however we will use CLK0. Please change this.
+
+### Follow-up 33
+
+> Text, lines and diagrams are covering each other, can you fix that?
+
+### Follow-up 34
+
+> Keep the exploded view, but remove the assembled view.
+
 ## Design decisions made by the AI
 
 - I2C bus shared by Si5351 (0x60) and OLED (SSD1306, 0x3C) on GPIO21 (SDA) / GPIO22 (SCL).
@@ -187,7 +215,8 @@ This project was generated with the help of an AI model.
 - Case: display and button board slide into rails and are held down by fingers on the lid; printed button caps with a flange.
 - Case: SMA bulkhead in the centre of the top; the Si5351 hangs below it parallel to the front wall, about 3 mm above the ESP32 module.
 - Case: buttons engraved ▲ ▼ D M (button 1..4).
-- Case: board dimensions are assumptions (ESP32 DevKit 55x28, GM009605 27.3x27.8, Si5351 40x30, button board 45x20) and must be checked.
+- Case: board dimensions are assumptions (ESP32 DevKit 55x28, GM009605 27.3x27.8) and must be checked; the Si5351 is measured: 30.2 x 21.6 mm (fit checked for CLK0 on any of the 3 SMA positions); the button board is measured: 38 x 16 mm, switch top 8.0 mm above the PCB, 7.3 mm spacing.
+- Case: button caps 5 mm with a rectangular 6.9 x 9 mm flange (round 9 mm flanges would overlap at 7.3 mm spacing), holes 5.6 mm.
 - Product render and inside view rendered with matplotlib (`case/qube_preview.py`).
 - All timed modes are step tables played from loop() with micros() timing (no drift; no delay() in loop).
 - One FSK mode, alternating at 1 Hz (500 ms on f, 500 ms on f + shift). Shift 170 / 425 / 850 / VAR (1–10000 Hz, start 1000). (RTTY was tried and removed again.)
@@ -195,4 +224,5 @@ This project was generated with the help of an AI model.
 - DIGIT and MODE act on release (short) or after 1 s (long); hold DIGIT saves shift selection and VAR value in ESP32 Preferences (namespace "quberg"), also outside the shift setting. Holding MODE outside FSK does nothing.
 - Beacon: callsign in morse at 12 WPM (100 ms dot), word gap, 60 s carrier, word gap, repeat. Mode order CW, CW-keyed, FSK, Beacon, OFF; Beacon is skipped while CALLSIGN is "N0CALL".
 - Screen diagram (`docs/screens.png`): the firmware runs on the PC with stand-in hardware and the real Adafruit GFX 5x7 font, so the screenshots match the real display (`tools/screenflow/`).
+- SMA mount view (`docs/sma_mount.png`, `case/qube_sma_view.py`): exploded view only, labels placed automatically in a column beside the parts so text and leader lines never overlap; connector sizes are typical values. CLK0 is the jack at one end of the Si5351 board (10 mm pitch), so the board hangs off-centre under the SMA; the fit check passes with CLK0 at either end.
 - Libraries: Etherkit Si5351, Adafruit SSD1306, Adafruit GFX.

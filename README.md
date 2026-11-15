@@ -127,10 +127,12 @@ The `case/` folder holds a 3D-printable cube case (FDM, PETG):
 - **Two halves that click together:** the bottom part has a tongue with snap ridges, the top part slides over it. Use the notch on the right side to pry it open.
 - **ESP32:** lies on the bottom, component side up, header pins pointing down (room for dupont plugs). It clicks between 4 flexible hooks; the USB connector lines up with the hole in the left wall.
 - **Display:** slides into rails on the inside of the front wall, glass against the window.
-- **Button board:** switches facing the back wall, slides into rails on the back wall. Put the 4 caps in the holes from the inside first.
+- **Button board** (38 × 16 mm, 7.3 mm button spacing): switches facing the back wall, slides into rails on the back wall. Put the 4 caps in the holes from the inside first, with the long side of the flange vertical.
 - **Locking:** fingers on the lid press the display and button board down when the cube is closed.
 - **Buttons marked** ▲ ▼ D M (up, down, Digit, Mode) on the back.
-- **Si5351:** hangs from the lid, parallel to the front wall, right above the ESP32. Mount the SMA F-F bulkhead in the centre hole of the top, screw the M-M adaptor into it and the Si5351 CLK0 jack onto the adaptor.
+- **Si5351:** hangs from the lid, parallel to the front wall, right above the ESP32. Mount the SMA F-F bulkhead in the centre hole of the top, screw the M-M adaptor into it and the Si5351 CLK0 jack onto the adaptor:
+
+![SMA mount](docs/sma_mount.png)
 
 Suggested print settings: PETG, 0.2 mm layers, 3 walls, 20 % infill, no supports.
 

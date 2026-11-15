@@ -13,7 +13,7 @@ Usage:
   pip install manifold3d numpy matplotlib
   python3 qube_case.py            # write STLs
   python3 qube_case.py --check    # also run a fit check against dummy boards
-  python3 qube_case.py --preview  # also render preview PNGs to ../docs
+  python3 qube_case.py --preview  # also render preview PNGs to ../docs (incl. sma_mount.png)
 
 All dimensions are in mm. MEASURE YOUR BOARDS and adjust the parameters
 below before printing - board sizes differ between suppliers.
@@ -63,13 +63,13 @@ ESP_HOOK_IN = 0.8       # how far the snap hooks reach over the PCB edge
 ESP_HOOK_X = (0.5, 3.0) # hook/support zone measured from each PCB end
 
 # ---- Si5351 board (hangs from the top on the SMA chain, SMAs pointing up)
-SI_W = 40.0             # PCB width (along the edge with the SMA connectors)
-SI_H = 30.0             # PCB height (perpendicular to that edge)
+SI_W = 30.2             # PCB width (along the edge with the SMA connectors, measured)
+SI_H = 21.6             # PCB height (perpendicular to that edge, measured)
 SI_T = 1.6
 SMA_X = S / 2           # SMA bulkhead position on the top panel (centre)
 SMA_Y = S / 2           # the Si5351 stands parallel to the front wall, right below it
-SI_CLK0_OFF = 0.0       # CLK0 position on the SMA edge, relative to the board centre
-SI_SMA_PITCH = 12.0     # spacing of the 3 SMA connectors (only used for the fit check)
+SI_SMA_PITCH = 10.0     # spacing of the 3 SMA connectors CLK0, CLK1, CLK2
+SI_CLK0_OFF = -SI_SMA_PITCH   # CLK0 position on the SMA edge, relative to the board centre (CLK0 at one end)
 SI_CHAIN = 26.0         # inner top surface -> Si5351 PCB edge (bulkhead + M-M adaptor + jack)
 SMA_HOLE_D = 6.6        # hole for the SMA F-F bulkhead (1/4"-36 thread = 6.35 mm)
 
@@ -84,16 +84,18 @@ D_WIN_H = 14.0
 D_WIN_DZ = 1.5          # window centre above PCB centre (glass sits towards the header)
 
 # ---- button board (4 tactile switches facing the back wall) ------------
-B_W = 45.0              # PCB width
-B_H = 20.0              # PCB height
+B_W = 38.0              # PCB width (measured)
+B_H = 16.0              # PCB height (measured)
 B_T = 1.6
 B_CZ = S / 2            # PCB centre height
-B_XS = (-16.5, -5.5, 5.5, 16.5)   # switch positions relative to PCB centre (x, seen from inside)
-B_SW_H = 5.0            # switch height incl. stem, above PCB
+B_PITCH = 7.3           # centre-to-centre spacing of the switches (measured)
+B_XS = tuple((i - 1.5) * B_PITCH for i in range(4))   # switch positions relative to PCB centre
+B_SW_H = 8.0            # top of the switch above the PCB (measured)
 B_SW = 6.0              # switch body size
-CAP_D = 6.0             # button cap plunger diameter
-CAP_HOLE_D = 6.6        # hole in the back wall
-CAP_FLANGE_D = 9.0      # cap flange (keeps the cap inside)
+CAP_D = 5.0             # button cap plunger diameter
+CAP_HOLE_D = 5.6        # hole in the back wall
+CAP_FLANGE_W = B_PITCH - 0.4   # rectangular cap flange (keeps the cap inside), width
+CAP_FLANGE_H = 9.0      # flange height
 CAP_FLANGE_T = 1.2
 CAP_OUT = 1.5           # cap sticks out of the wall this much
 CAP_GAP = 0.3           # gap between cap and switch stem
@@ -377,7 +379,7 @@ def top_part():
 
 
 def button_cap():
-    flange = cyl_z(0, 0, 0, CAP_FLANGE_T, CAP_FLANGE_D / 2)
+    flange = box(-CAP_FLANGE_W / 2, -CAP_FLANGE_H / 2, 0, CAP_FLANGE_W / 2, CAP_FLANGE_H / 2, CAP_FLANGE_T)
     plen = WALL + CAP_OUT
     plunger = cyl_z(0, 0, CAP_FLANGE_T - 0.01, plen - 0.5 + 0.01, CAP_D / 2)
     tip = cyl_z(0, 0, CAP_FLANGE_T + plen - 0.5, 0.5, CAP_D / 2, CAP_D / 2 - 0.5)
@@ -385,7 +387,7 @@ def button_cap():
 
 
 def button_caps_print():
-    caps = [button_cap().translate((i * (CAP_FLANGE_D + 4), 0, 0)) for i in range(4)]
+    caps = [button_cap().translate((i * (CAP_FLANGE_W + 4), 0, 0)) for i in range(4)]
     return union(caps)
 
 
@@ -430,8 +432,8 @@ def dummies():
     # Si5351: PCB, components, 3 SMA jacks, adaptor + bulkhead up to the top
     si = box(SI_XC - SI_W / 2, SMA_Y - SI_T / 2, SI_BOT, SI_XC + SI_W / 2, SMA_Y + SI_T / 2, SI_TOP)
     si += box(SI_XC - SI_W / 2 + 2, SMA_Y + SI_T / 2, SI_BOT + 2, SI_XC + SI_W / 2 - 2, SMA_Y + SI_T / 2 + 3, SI_TOP - 2)
-    for k in (-1, 0, 1):
-        si += cyl_z(SMA_X + k * SI_SMA_PITCH, SMA_Y, SI_TOP, 9, 4.0)
+    for k in (0, 1, 2):   # CLK0, CLK1, CLK2
+        si += cyl_z(SI_XC + SI_CLK0_OFF + k * SI_SMA_PITCH, SMA_Y, SI_TOP, 9, 4.0)
     si += cyl_z(SMA_X, SMA_Y, SI_TOP + 8.9, IN1 - SI_TOP - 8.9 - 0.02, 4.6)
     d["Si5351 + SMA chain"] = si
     return d
@@ -513,6 +515,8 @@ def main():
     if "--preview" in sys.argv:
         import qube_preview
         qube_preview.render(bottom, top, caps_asm, dummies(), os.path.join(here, "..", "docs"))
+        import qube_sma_view
+        qube_sma_view.render(top, os.path.join(here, "..", "docs"))
 
 
 if __name__ == "__main__":
