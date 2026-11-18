@@ -55,8 +55,8 @@ SNAP_LEN = 20.0         # snap ridge length (one ridge per side)
 ENGRAVE = 0.6           # engraving depth of text
 
 # ---- ESP32 devboard (component side up, header pins pointing DOWN) -----
-ESP_L = 55.0            # PCB length (USB end to antenna end)
-ESP_W = 28.0            # PCB width
+ESP_L = 51.5            # PCB length (USB end to antenna end, measured)
+ESP_W = 28.4            # PCB width (measured)
 ESP_T = 1.6             # PCB thickness
 ESP_LIFT = 20.0         # PCB bottom above floor (room for dupont plugs on the pins)
 ESP_Y = S / 2           # PCB centre line (y)
@@ -75,7 +75,9 @@ SMA_X = S / 2           # SMA bulkhead position on the top panel (centre)
 SMA_Y = S / 2           # the Si5351 stands parallel to the front wall, right below it
 SI_SMA_PITCH = 10.0     # spacing of the 3 SMA connectors CLK0, CLK1, CLK2
 SI_CLK0_OFF = -SI_SMA_PITCH   # CLK0 position on the SMA edge, relative to the board centre (CLK0 at one end)
-SI_CHAIN = 26.0         # inner top surface -> Si5351 PCB edge (bulkhead + M-M adaptor + jack)
+SI_STACK = 46.6         # Si5351 board bottom edge -> top end of the M-M adaptor on CLK0 (measured)
+SMA_ADAPTOR_GAP = 8.0   # inside of the top -> top end of the adaptor (measured, about)
+SI_CHAIN = SMA_ADAPTOR_GAP + SI_STACK - SI_H   # inside of the top -> Si5351 PCB edge with the jacks
 # SMA F-F bulkhead connector: measure the threaded part that goes through the top.
 # Many have two flat sides (a "D" or double-D shape) that stop them from turning.
 SMA_HOLE_D = 7.8        # diameter of the threaded part
@@ -84,8 +86,8 @@ SMA_HOLE_CLEAR = 0.2    # extra clearance on both sizes (printed holes come out 
 SMA_HOLE_ANGLE = 0.0    # rotation of the flats in degrees (0 = flats parallel to the front)
 
 # ---- OLED display GM009605v4 (SSD1306 0.96") -----------------------------
-D_W = 27.3              # PCB width
-D_H = 27.8              # PCB height
+D_W = 27.3              # PCB width (measured)
+D_H = 24.8              # PCB height (measured)
 D_T = 1.2               # PCB thickness
 D_STACK = 2.4           # glass + adhesive in front of the PCB
 D_CZ = S / 2            # PCB centre height

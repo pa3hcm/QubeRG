@@ -203,6 +203,26 @@ This project was generated with the help of an AI model.
 
 > Since you already add clearance, fix the current sizes of the sma hole in the lid to 7.8mm diameter and 7.4mm between the flat sides.
 
+### Follow-up 37
+
+> Commit and push
+
+### Follow-up 38
+
+> The size of the ESP32 board (PCB) is 51.5 x 28.4 mm.
+
+### Follow-up 39
+
+> The OLED display board (PCB) is 27.3 x 24.8 mm
+
+### Follow-up 40
+
+> The SI5351 board and the M-M sma adaptor together measure 46.6 mm
+
+### Follow-up 41
+
+> The distance between the lid and the top of the m-m sma adaptor is about 8mm
+
 ## Design decisions made by the AI
 
 - I2C bus shared by Si5351 (0x60) and OLED (SSD1306, 0x3C) on GPIO21 (SDA) / GPIO22 (SCL).
@@ -223,7 +243,7 @@ This project was generated with the help of an AI model.
 - Case: display and button board slide into rails and are held down by fingers on the lid; printed button caps with a flange.
 - Case: SMA bulkhead in the centre of the top; the Si5351 hangs below it parallel to the front wall, about 3 mm above the ESP32 module.
 - Case: buttons engraved ▲ ▼ D M (button 1..4).
-- Case: board dimensions are assumptions (ESP32 DevKit 55x28, GM009605 27.3x27.8) and must be checked; the Si5351 is measured: 30.2 x 21.6 mm (fit checked for CLK0 on any of the 3 SMA positions); the button board is measured: 38 x 16 mm, switch top 8.0 mm above the PCB, 7.3 mm spacing.
+- Case: all board sizes are measured now: display 27.3 x 24.8 mm (position of the visible area still estimated); the ESP32 is measured: 51.5 x 28.4 mm; the Si5351 is measured: 30.2 x 21.6 mm (fit checked for CLK0 on any of the 3 SMA positions); the button board is measured: 38 x 16 mm, switch top 8.0 mm above the PCB, 7.3 mm spacing.
 - Case: button caps 5 mm with a rectangular 6.9 x 9 mm flange (round 9 mm flanges would overlap at 7.3 mm spacing), holes 5.6 mm.
 - Product render and inside view rendered with matplotlib (`case/qube_preview.py`).
 - All timed modes are step tables played from loop() with micros() timing (no drift; no delay() in loop).
@@ -234,4 +254,5 @@ This project was generated with the help of an AI model.
 - Screen diagram (`docs/screens.png`): the firmware runs on the PC with stand-in hardware and the real Adafruit GFX 5x7 font, so the screenshots match the real display (`tools/screenflow/`).
 - SMA mount view (`docs/sma_mount.png`, `case/qube_sma_view.py`): exploded view only, labels placed automatically in a column beside the parts so text and leader lines never overlap; connector sizes are typical values. CLK0 is the jack at one end of the Si5351 board (10 mm pitch), so the board hangs off-centre under the SMA; the fit check passes with CLK0 at either end.
 - SMA hole: round with two flats (7.8 mm, 7.4 mm across the flats) + 0.2 mm clearance, so 8.0 x 7.6 mm, flats parallel to the front. Settings SMA_HOLE_D / _FLATS / _CLEAR / _ANGLE, also as command-line options (`--sma-d`, `--sma-flats`, `--sma-clear`, `--sma-angle`), with `--only top` to regenerate just the lid.
+- Si5351 hanging height: board bottom edge to top of the M-M adaptor = 46.6 mm (measured, SI_STACK) plus about 8 mm from the inside of the top to the adaptor (measured, SMA_ADAPTOR_GAP). The board edge hangs 33 mm below the top, 4.6 mm above the ESP32; the fit check passes for gaps up to 10 mm.
 - Libraries: Etherkit Si5351, Adafruit SSD1306, Adafruit GFX.
