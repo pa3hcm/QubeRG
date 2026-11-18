@@ -61,6 +61,34 @@ def sma_connector():
     return body - cyl_z(qc.SMA_X, qc.SMA_Y, S + 4.0, 6.0, 2.4) + pin, hexf
 
 
+ANTENNA_H = 80.0                       # rubber duck height above the top of the cube
+RUBBER = (0.07, 0.07, 0.08)
+NICKEL = (0.80, 0.80, 0.82)
+
+
+def rubber_duck():
+    """Illustrative SMA rubber duck antenna, standing on the SMA bulkhead."""
+    S, x, y = qc.S, qc.SMA_X, qc.SMA_Y
+    z0 = S + 3.0                                       # bottom of the antenna's SMA nut
+    nut = Manifold.cylinder(8.0, 4.3, 4.3, 24).translate((x, y, z0))
+    knurl = [cyl_z(x, y, z0 + 1.0 + i * 1.5, 0.6, 4.55) for i in range(5)]
+    base = cyl_z(x, y, z0 + 8.0, 11.0, 5.0)
+    hinge = Manifold.cylinder(10.0, 4.0, 4.0, 32).rotate((0, 90, 0)).translate((x - 5.0, y, z0 + 13.5))
+    top_z = S + ANTENNA_H
+    body_z = z0 + 19.0
+    tip_r = 2.8
+    body = Manifold.cylinder(top_z - tip_r - body_z, 4.6, tip_r, 48).translate((x, y, body_z))
+    tip = Manifold.sphere(tip_r, 32).translate((x, y, top_z - tip_r))
+    ribs = [cyl_z(x, y, body_z + 2 + i * 3.0, 1.0, 4.9 - i * 0.05) for i in range(6)]
+    metal = nut
+    for k in knurl:
+        metal = metal + k
+    rubber = base + hinge + body + tip
+    for r in ribs:
+        rubber = rubber + r
+    return metal, rubber
+
+
 def render(bottom, top, caps, dummies, outdir):
     os.makedirs(outdir, exist_ok=True)
     S = qc.S
@@ -76,16 +104,22 @@ def render(bottom, top, caps, dummies, outdir):
         tris(usb, (0.75, 0.75, 0.78)),
         tris(sma_body, GOLD, 1.0), tris(sma_hex, GOLD, 1.0),
     ]
-    fig = plt.figure(figsize=(8, 8), dpi=150)
-    ax = fig.add_subplot(projection="3d")
-    draw(ax, items, elev=24, azim=-118, lim=((0, 0, 0), (S, S, S + 9)))
+    ant_metal, ant_rubber = rubber_duck()
+    items += [tris(ant_metal, NICKEL, 1.5), tris(ant_rubber, RUBBER, 2.0)]
+    fig = plt.figure(figsize=(8, 11), dpi=150)
+    ax = fig.add_axes([0, 0, 1, 1], projection="3d")
+    draw(ax, items, elev=20, azim=-118)
+    zt = S + ANTENNA_H + 2
+    ax.set_xlim(0, S)
+    ax.set_ylim(0, S)
+    ax.set_zlim(0, zt)
+    ax.set_box_aspect((S, S, zt), zoom=0.98)
     wz = qc.D_CZ + qc.D_WIN_DZ
-    ax.text(S / 2, -0.2, wz + 1.2, "10.000.000", zdir="x", color=(0.5, 0.95, 1.0),
-            fontsize=13, family="DejaVu Sans Mono", ha="center", va="center", zorder=10)
+    ax.text(S / 2 - 0.8, -0.2, wz + 1.2, "10.000.000", zdir="x", color=(0.5, 0.95, 1.0),
+            fontsize=10, family="DejaVu Sans Mono", ha="center", va="center", zorder=10)
     ax.text(S / 2, -0.2, wz - 4.0, "Mode: OFF", zdir="x", color=(0.5, 0.95, 1.0),
             fontsize=7, family="DejaVu Sans Mono", ha="center", va="center", zorder=10)
-    fig.subplots_adjust(0, 0, 1, 1)
-    fig.savefig(os.path.join(outdir, "qubeRG.png"), facecolor="white")
+    fig.savefig(os.path.join(outdir, "qubeRG.png"), facecolor="white", bbox_inches="tight", pad_inches=0.2)
     plt.close(fig)
 
     # ------------------------------------------------------------------ inside

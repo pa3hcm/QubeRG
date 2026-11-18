@@ -223,6 +223,16 @@ This project was generated with the help of an AI model.
 
 > The distance between the lid and the top of the m-m sma adaptor is about 8mm
 
+### Follow-up 42
+
+> Can you update docs/ubeRG.png to include a small rubberduck antenna on top of it, maybe 8 cm high, just for illustration purpose.
+
+(docs/qubeRG.png was meant.)
+
+### Follow-up 43
+
+> In README.md, align qubeRG.png to the right, so it gets positioned along the intro text
+
 ## Design decisions made by the AI
 
 - I2C bus shared by Si5351 (0x60) and OLED (SSD1306, 0x3C) on GPIO21 (SDA) / GPIO22 (SCL).
@@ -255,4 +265,5 @@ This project was generated with the help of an AI model.
 - SMA mount view (`docs/sma_mount.png`, `case/qube_sma_view.py`): exploded view only, labels placed automatically in a column beside the parts so text and leader lines never overlap; connector sizes are typical values. CLK0 is the jack at one end of the Si5351 board (10 mm pitch), so the board hangs off-centre under the SMA; the fit check passes with CLK0 at either end.
 - SMA hole: round with two flats (7.8 mm, 7.4 mm across the flats) + 0.2 mm clearance, so 8.0 x 7.6 mm, flats parallel to the front. Settings SMA_HOLE_D / _FLATS / _CLEAR / _ANGLE, also as command-line options (`--sma-d`, `--sma-flats`, `--sma-clear`, `--sma-angle`), with `--only top` to regenerate just the lid.
 - Si5351 hanging height: board bottom edge to top of the M-M adaptor = 46.6 mm (measured, SI_STACK) plus about 8 mm from the inside of the top to the adaptor (measured, SMA_ADAPTOR_GAP). The board edge hangs 33 mm below the top, 4.6 mm above the ESP32; the fit check passes for gaps up to 10 mm.
+- Product image shows an illustrative 8 cm rubber duck antenna on the SMA connector (render only, not part of the case).
 - Libraries: Etherkit Si5351, Adafruit SSD1306, Adafruit GFX.

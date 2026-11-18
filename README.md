@@ -1,6 +1,6 @@
 # QubeRG v0.1b
 
-![QubeRG](docs/qubeRG.png)
+<img src="docs/qubeRG.png" alt="QubeRG" align="right" width="360">
 
 **QubeRG** is a small, self-contained RF signal generator for the radio
 amateur's workbench. It fits in a 3D-printed 90 mm cube: the frequency is on
@@ -38,6 +38,8 @@ The name combines the shape and the purpose of the device:
 - **QRG** – the Q-code for frequency ("QRG?" = *What is my exact frequency?*).
   Q-ube-RG contains the letters of QRG, and setting an exact frequency is
   exactly what the device does.
+
+<br clear="right">
 
 ![wiring](docs/wiring.png)
 
