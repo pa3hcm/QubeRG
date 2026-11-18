@@ -195,6 +195,14 @@ This project was generated with the help of an AI model.
 
 > Keep the exploded view, but remove the assembled view.
 
+### Follow-up 35
+
+> The whole in the lid for the SMA thruhole connector must be changed. It has a diameter of 7.9 mm. It has two flat sides, the distance between them is 7.5mm. These connectors come in different shapes and sizes, so maybe it's better you can change the script to generate it so you can simply regenerate the lid stl.
+
+### Follow-up 36
+
+> Since you already add clearance, fix the current sizes of the sma hole in the lid to 7.8mm diameter and 7.4mm between the flat sides.
+
 ## Design decisions made by the AI
 
 - I2C bus shared by Si5351 (0x60) and OLED (SSD1306, 0x3C) on GPIO21 (SDA) / GPIO22 (SCL).
@@ -225,4 +233,5 @@ This project was generated with the help of an AI model.
 - Beacon: callsign in morse at 12 WPM (100 ms dot), word gap, 60 s carrier, word gap, repeat. Mode order CW, CW-keyed, FSK, Beacon, OFF; Beacon is skipped while CALLSIGN is "N0CALL".
 - Screen diagram (`docs/screens.png`): the firmware runs on the PC with stand-in hardware and the real Adafruit GFX 5x7 font, so the screenshots match the real display (`tools/screenflow/`).
 - SMA mount view (`docs/sma_mount.png`, `case/qube_sma_view.py`): exploded view only, labels placed automatically in a column beside the parts so text and leader lines never overlap; connector sizes are typical values. CLK0 is the jack at one end of the Si5351 board (10 mm pitch), so the board hangs off-centre under the SMA; the fit check passes with CLK0 at either end.
+- SMA hole: round with two flats (7.8 mm, 7.4 mm across the flats) + 0.2 mm clearance, so 8.0 x 7.6 mm, flats parallel to the front. Settings SMA_HOLE_D / _FLATS / _CLEAR / _ANGLE, also as command-line options (`--sma-d`, `--sma-flats`, `--sma-clear`, `--sma-angle`), with `--only top` to regenerate just the lid.
 - Libraries: Etherkit Si5351, Adafruit SSD1306, Adafruit GFX.

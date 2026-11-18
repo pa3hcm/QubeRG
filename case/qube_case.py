@@ -11,9 +11,14 @@ Generates the 3D-printable parts as STL files:
 
 Usage:
   pip install manifold3d numpy matplotlib
-  python3 qube_case.py            # write STLs
+  python3 qube_case.py            # write all STLs
   python3 qube_case.py --check    # also run a fit check against dummy boards
   python3 qube_case.py --preview  # also render preview PNGs to ../docs (incl. sma_mount.png)
+
+  # only the top part, for another SMA bulkhead connector (sizes in mm):
+  python3 qube_case.py --only top --sma-d 7.8 --sma-flats 7.4
+  python3 qube_case.py --only top --sma-d 6.35 --sma-flats 0     # round hole
+  python3 qube_case.py --help     # all options
 
 All dimensions are in mm. MEASURE YOUR BOARDS and adjust the parameters
 below before printing - board sizes differ between suppliers.
@@ -71,7 +76,12 @@ SMA_Y = S / 2           # the Si5351 stands parallel to the front wall, right be
 SI_SMA_PITCH = 10.0     # spacing of the 3 SMA connectors CLK0, CLK1, CLK2
 SI_CLK0_OFF = -SI_SMA_PITCH   # CLK0 position on the SMA edge, relative to the board centre (CLK0 at one end)
 SI_CHAIN = 26.0         # inner top surface -> Si5351 PCB edge (bulkhead + M-M adaptor + jack)
-SMA_HOLE_D = 6.6        # hole for the SMA F-F bulkhead (1/4"-36 thread = 6.35 mm)
+# SMA F-F bulkhead connector: measure the threaded part that goes through the top.
+# Many have two flat sides (a "D" or double-D shape) that stop them from turning.
+SMA_HOLE_D = 7.8        # diameter of the threaded part
+SMA_HOLE_FLATS = 7.4    # distance between the two flat sides, 0 = round, no flats
+SMA_HOLE_CLEAR = 0.2    # extra clearance on both sizes (printed holes come out a bit small)
+SMA_HOLE_ANGLE = 0.0    # rotation of the flats in degrees (0 = flats parallel to the front)
 
 # ---- OLED display GM009605v4 (SSD1306 0.96") -----------------------------
 D_W = 27.3              # PCB width
@@ -351,6 +361,16 @@ def bottom_part():
     return m - union(cuts)
 
 
+def sma_hole():
+    """Hole for the SMA bulkhead: round, or round with two flat sides."""
+    d = SMA_HOLE_D + SMA_HOLE_CLEAR
+    hole = Manifold.cylinder(WALL + 2, d / 2, d / 2, 96)
+    if SMA_HOLE_FLATS > 0:
+        f = SMA_HOLE_FLATS + SMA_HOLE_CLEAR
+        hole = hole ^ box(-d, -f / 2, -1, d, f / 2, WALL + 3)
+    return hole.rotate((0, 0, SMA_HOLE_ANGLE)).translate((SMA_X, SMA_Y, IN1 - 1))
+
+
 def top_part():
     top = shell() ^ box(-1, -1, SPLIT, S + 1, S + 1, S + 1)
     pocket = box(IN0 - TONGUE_T - FIT, IN0 - TONGUE_T - FIT, SPLIT - 1,
@@ -371,7 +391,7 @@ def top_part():
         fingers.append(box(x0, B_PCB_Y0 + 0.1, zj, x1, IN1 + 0.01, IN1 + 0.01))
     top = top + union(fingers)
 
-    cuts = [cyl_z(SMA_X, SMA_Y, IN1 - 1, WALL + 2, SMA_HOLE_D / 2)]
+    cuts = [sma_hole()]
     # pry notch on the right side, to open the cube with a coin / screwdriver
     cuts.append(box(S - (IN0 - TONGUE_T - FIT) - 0.01, S / 2 - 6, SPLIT - 0.01, S + 1, S / 2 + 6, SPLIT + 1.5))
     cuts.append(engrave_top("RF", 6.0, SMA_X, SMA_Y - 11))
@@ -495,24 +515,61 @@ def fit_check(bottom, top, caps):
     return ok
 
 
+def parse_args():
+    import argparse
+    ap = argparse.ArgumentParser(description="Generate the QubeRG case STLs.")
+    ap.add_argument("--only", action="append", choices=["bottom", "top", "buttons"],
+                    help="only write this part (can be repeated); default: all parts")
+    ap.add_argument("--check", action="store_true", help="run the fit check against dummy boards")
+    ap.add_argument("--preview", action="store_true", help="render the preview images to ../docs")
+    ap.add_argument("--sma-d", type=float, help=f"SMA bulkhead thread diameter (default {SMA_HOLE_D})")
+    ap.add_argument("--sma-flats", type=float,
+                    help=f"distance between the flat sides, 0 = round hole (default {SMA_HOLE_FLATS})")
+    ap.add_argument("--sma-clear", type=float, help=f"extra clearance (default {SMA_HOLE_CLEAR})")
+    ap.add_argument("--sma-angle", type=float, help=f"rotation of the flats in degrees (default {SMA_HOLE_ANGLE})")
+    return ap.parse_args()
+
+
 def main():
+    global SMA_HOLE_D, SMA_HOLE_FLATS, SMA_HOLE_CLEAR, SMA_HOLE_ANGLE
+    args = parse_args()
+    if args.sma_d is not None:
+        SMA_HOLE_D = args.sma_d
+    if args.sma_flats is not None:
+        SMA_HOLE_FLATS = args.sma_flats
+    if args.sma_clear is not None:
+        SMA_HOLE_CLEAR = args.sma_clear
+    if args.sma_angle is not None:
+        SMA_HOLE_ANGLE = args.sma_angle
+    if SMA_HOLE_FLATS >= SMA_HOLE_D:
+        SMA_HOLE_FLATS = 0          # flats wider than the hole: just a round hole
+
     here = os.path.dirname(os.path.abspath(__file__))
     out = os.path.join(here, "stl")
     os.makedirs(out, exist_ok=True)
+    only = set(args.only or ["bottom", "top", "buttons"])
+    need_all = args.check or args.preview
 
-    bottom = bottom_part()
-    top = top_part()
-    caps_asm = button_caps_assembled()
+    flats = f", flats {SMA_HOLE_FLATS} mm" if SMA_HOLE_FLATS > 0 else " (round)"
+    print(f"SMA hole: {SMA_HOLE_D} mm{flats}, clearance {SMA_HOLE_CLEAR} mm, angle {SMA_HOLE_ANGLE} deg")
 
-    write_stl(on_bed(bottom), os.path.join(out, "qube_bottom.stl"), "QubeRG bottom")
-    write_stl(on_bed(top.rotate((180, 0, 0))), os.path.join(out, "qube_top.stl"), "QubeRG top")
-    write_stl(on_bed(button_caps_print()), os.path.join(out, "qube_buttons.stl"), "QubeRG button caps")
-    for n, m in (("bottom", bottom), ("top", top)):
-        print(f"{n}: volume {m.volume() / 1000:.1f} cm^3, {m.num_tri()} triangles, genus {m.genus()}")
+    bottom = bottom_part() if ("bottom" in only or need_all) else None
+    top = top_part() if ("top" in only or need_all) else None
+    caps_asm = button_caps_assembled() if need_all else None
 
-    if "--check" in sys.argv:
+    if "bottom" in only:
+        write_stl(on_bed(bottom), os.path.join(out, "qube_bottom.stl"), "QubeRG bottom")
+        print(f"written stl/qube_bottom.stl: {bottom.volume() / 1000:.1f} cm^3, genus {bottom.genus()}")
+    if "top" in only:
+        write_stl(on_bed(top.rotate((180, 0, 0))), os.path.join(out, "qube_top.stl"), "QubeRG top")
+        print(f"written stl/qube_top.stl: {top.volume() / 1000:.1f} cm^3, genus {top.genus()}")
+    if "buttons" in only:
+        write_stl(on_bed(button_caps_print()), os.path.join(out, "qube_buttons.stl"), "QubeRG button caps")
+        print("written stl/qube_buttons.stl")
+
+    if args.check:
         fit_check(bottom, top, caps_asm)
-    if "--preview" in sys.argv:
+    if args.preview:
         import qube_preview
         qube_preview.render(bottom, top, caps_asm, dummies(), os.path.join(here, "..", "docs"))
         import qube_sma_view

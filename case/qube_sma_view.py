@@ -49,14 +49,17 @@ def parts():
     top_out = qc.S
     p = []
     # --- SMA F-F bulkhead: flange on the outside, nut + washer on the inside
-    p.append(("bulkhead", hex_z(top_out, 2.0), GOLD))
+    rp = qc.SMA_HOLE_D / 2                      # thread through the top (measured)
+    rhex = (qc.SMA_HOLE_D + 3.0) / 2 / 0.866       # flange and nut, across flats = thread + 3 mm
+    p.append(("bulkhead", hex_z(top_out, 2.0, rhex), GOLD))
     b, d, pin = female_end(top_out + 2.0, 6.5, up=True)
     p += [("bulkhead", b, GOLD), ("bulkhead", d, WHITE), ("bulkhead", pin, GOLD)]
-    p.append(("bulkhead", cyl_z(X, Y, 79.0, top_out - 79.0 + 0.01, R_THREAD), GOLD))
+    p.append(("bulkhead", cyl_z(X, Y, top_in - 3.2, top_out - top_in + 3.21, rp), GOLD))
+    p.append(("bulkhead", cyl_z(X, Y, 79.0, top_in - 3.2 - 79.0 + 0.01, R_THREAD), GOLD))
     b, d, pin = female_end(79.0 - 0.01, 3.0, up=False)
     p += [("bulkhead", d, WHITE)]
-    p.append(("washer", cyl_z(X, Y, top_in - 0.6, 0.6, 4.6) - cyl_z(X, Y, top_in - 1, 2, 3.3), NICKEL))
-    p.append(("nut", hex_z(top_in - 3.1, 2.5) - cyl_z(X, Y, top_in - 4, 4, R_THREAD), GOLD))
+    p.append(("washer", cyl_z(X, Y, top_in - 0.6, 0.6, rp + 1.8) - cyl_z(X, Y, top_in - 1, 2, rp + 0.1), NICKEL))
+    p.append(("nut", hex_z(top_in - 3.1, 2.5, rhex) - cyl_z(X, Y, top_in - 4, 4, rp), GOLD))
     # --- M-M adaptor: two coupling nuts and a body
     a_top = 83.9
     p.append(("adaptor", hex_z(a_top - 5.0, 5.0) - cyl_z(X, Y, a_top - 4.6, 5, R_THREAD), GOLD))

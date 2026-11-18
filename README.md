@@ -143,6 +143,21 @@ pip install manifold3d numpy matplotlib
 cd case && python3 qube_case.py --check --preview
 ```
 
+**SMA hole in the top:** SMA bulkhead connectors come in different sizes, and
+many have two flat sides so they can't turn. The hole is made for a connector
+of 7.8 mm diameter with 7.4 mm across the flats, plus 0.2 mm clearance
+(so the hole is 8.0 × 7.6 mm). For another connector, measure it and
+regenerate only the top part:
+
+```bash
+cd case && python3 qube_case.py --only top --sma-d 7.8 --sma-flats 7.4
+```
+
+Use `--sma-flats 0` for a round hole, `--sma-clear` for more or less
+clearance, and `--sma-angle` to rotate the flats. The defaults are at the top
+of `case/qube_case.py` (`SMA_HOLE_D`, `SMA_HOLE_FLATS`, `SMA_HOLE_CLEAR`,
+`SMA_HOLE_ANGLE`).
+
 ## Build & upload
 
 Open the `QubeRG` folder in VS Code with the PlatformIO extension, then
