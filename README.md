@@ -1,4 +1,4 @@
-# QubeRG v0.1b
+# QubeRG
 
 <img src="docs/qubeRG.png" alt="QubeRG" align="right" width="360">
 
@@ -12,6 +12,8 @@ frequency from 8 kHz to 99.999.999 Hz in 1 Hz steps, digit by digit, and
 choose what the output sends: a plain carrier, keyed CW, a signal that
 shifts between two frequencies (1 Hz to 10 kHz apart), or a CW beacon with
 your own callsign.
+
+> Note: Most artifacts in this project are designed/generated with AI, however I built it myself to verify the completeness and sizing, as well as manually updated the documentation to add my own thoughts.
 
 ### What can you do with it?
 
