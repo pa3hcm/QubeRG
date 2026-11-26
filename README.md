@@ -43,6 +43,37 @@ The name combines the shape and the purpose of the device:
 
 <br clear="right">
 
+## Bill of materials
+
+Prices are a rough indication in euros (late 2026), per part, incl. VAT,
+excluding shipping. The low end is a typical price from AliExpress and similar
+shops (often sold in packs of 2–5); the high end is a typical price from a
+local electronics webshop.
+
+| # | Qty | Part | Notes | Price (€) |
+|---|-----|------|-------|-----------|
+| 1 | 1 | ESP32 devboard (ESP32-WROOM-32, "DevKit V1") | PCB about 51.5 × 28.4 mm; check the size before printing | 4 – 10 |
+| 2 | 1 | Si5351A clock generator board | 25 MHz crystal, I2C, 3 SMA outputs (CLK0..2), PCB about 30.2 × 21.6 mm | 4 – 12 |
+| 3 | 1 | 0.96" OLED display, SSD1306, I2C (GM009605v4) | 128 × 64, 4 pins (VCC, GND, SCL, SDA), PCB about 27.3 × 24.8 mm | 2 – 6 |
+| 4 | 1 | Button board, 4 push buttons with common ground | About 38 × 16 mm, 7.3 mm button spacing | 1 – 3 |
+| 5 | 1 | SMA female–female bulkhead connector | Panel mount with nut, about 7.8 mm thread, see [SMA hole](#case) | 1 – 3 |
+| 6 | 1 | SMA male–male adaptor, straight | Connects the bulkhead to CLK0 | 1 – 3 |
+| 7 | ~13 | Dupont jumper wires, female–female, 10 cm | 4 to the Si5351, 4 to the OLED, 5 to the buttons | 1 – 3 |
+| 8 | 1 | USB cable + 5 V USB power supply | Connector type depends on the ESP32 board (micro-USB or USB-C) | 2 – 8 |
+| 9 | ~150 g | PETG filament | For the 3 printed parts (bottom, top, button caps) | 3 – 5 |
+| | | **Total** | | **≈ 20 – 50** |
+
+Optional, for a clean or weak signal and for the picture at the top:
+
+| Part | Notes | Price (€) |
+|------|-------|-----------|
+| SMA low-pass filter | Removes the harmonics of the square wave, pick one for your band | 5 – 20 |
+| SMA attenuator (e.g. 20 or 30 dB) | Protects sensitive receivers and SDRs | 3 – 10 |
+| SMA rubber duck antenna | For beacon use (licence needed) | 2 – 8 |
+
+No screws or glue are needed: the boards click in place or are held down by
+the lid.
+
 ![wiring](docs/wiring.png)
 
 ## Wiring (all 3.3 V)
